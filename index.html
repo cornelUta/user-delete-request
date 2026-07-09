@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ORTEC Apps - User Data Deletion Request</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --primary:#0b5fff;
+      --border:#dbe2ea;
+      --ok:#0e9f6e;
+      --err:#d92d20;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 10% 10%, #e6efff 0, transparent 35%),
+        radial-gradient(circle at 90% 20%, #e8fff6 0, transparent 30%),
+        var(--bg);
+      min-height:100vh;
+      padding:24px;
+    }
+    .wrap{max-width:820px;margin:0 auto}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:24px;
+      box-shadow:0 10px 30px rgba(2,6,23,.06);
+    }
+    h1{margin:0 0 10px;font-size:30px;line-height:1.2}
+    p{margin:0 0 14px;color:var(--muted);line-height:1.55}
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .full{grid-column:1 / -1}
+    label{display:block;font-weight:600;font-size:14px;margin:6px 0}
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:11px 12px;
+      font-size:15px;
+      outline:none;
+      background:#fff;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(11,95,255,.14);
+    }
+    textarea{min-height:120px;resize:vertical}
+    button{
+      border:0;
+      background:var(--primary);
+      color:white;
+      border-radius:10px;
+      padding:12px 16px;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    button:disabled{opacity:.6;cursor:not-allowed}
+    .note{font-size:13px}
+    .msg{margin-top:14px;font-weight:600}
+    .ok{color:var(--ok)}
+    .err{color:var(--err)}
+    @media (max-width:700px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>User Data Deletion Request</h1>
+      <p>
+        Use this form to request deletion of your ORTEC app account and related personal data.
+        We will verify your identity and process eligible requests within 30 days.
+      </p>
+      <p class="note">
+        If you cannot access your app account, submit this form and include as much account detail as possible.
+      </p>
+
+      <form id="deleteForm">
+        <div class="grid">
+          <div>
+            <label for="name">Full name</label>
+            <input id="name" name="name" required />
+          </div>
+          <div>
+            <label for="email">Account email</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+          <div>
+            <label for="app">App</label>
+            <select id="app" name="app" required>
+              <option value="">Select app</option>
+              <option>ORTEC App 1</option>
+              <option>ORTEC App 2</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label for="requestType">Request type</label>
+            <select id="requestType" name="requestType" required>
+              <option value="">Select request</option>
+              <option>Delete account and personal data</option>
+              <option>Delete personal data only</option>
+            </select>
+          </div>
+          <div class="full">
+            <label for="details">Details (user ID, company, phone, anything to identify your account)</label>
+            <textarea id="details" name="details"></textarea>
+          </div>
+          <div class="full">
+            <label>
+              <input type="checkbox" name="consent" required style="width:auto; margin-right:8px;" />
+              I confirm this request is made by the account owner or authorized representative.
+            </label>
+          </div>
+        </div>
+
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+
+        <button id="submitBtn" type="submit">Submit deletion request</button>
+        <div id="message" class="msg" aria-live="polite"></div>
+      </form>
+
+      <p class="note" style="margin-top:18px;">
+        Support contact: support@ortec.com
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const endpoint = "https://formspree.io/f/FORMSPREE_ENDPOINT";
+    const form = document.getElementById("deleteForm");
+    const btn = document.getElementById("submitBtn");
+    const msg = document.getElementById("message");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "";
+      msg.className = "msg";
+      btn.disabled = true;
+
+      const data = new FormData(form);
+
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          body: data,
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!res.ok) throw new Error("Request failed");
+        form.reset();
+        msg.textContent = "Your deletion request was submitted successfully. We will contact you by email.";
+        msg.classList.add("ok");
+      } catch {
+        msg.textContent = "Could not submit right now. Please email support@ortec.com directly.";
+        msg.classList.add("err");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
